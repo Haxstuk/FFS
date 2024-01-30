@@ -4,6 +4,13 @@
 
 #define ROOTINO 1  // root i-number
 #define BSIZE 512  // block size
+#define BGSIZE 2048 // size of block group
+
+struct blockgroup {
+  uint bg_index;
+  uint data_blocks_in_use;
+  uint inodes_in_use;
+} bg_t;
 
 // Disk layout:
 // [ boot block | super block | log | inode blocks |
