@@ -26,6 +26,13 @@ struct superblock {
   uint logstart;     // Block number of first log block
   uint inodestart;   // Block number of first inode block
   uint bmapstart;    // Block number of first free map block
+  uint bgsize;        
+  uint bgstart;
+  uint bgcount;
+
+  uint inodeblocks;  // blocks given to inodes in each group
+  uint bgdatablocks;
+  uint bgmetablocks;
 };
 
 #define NDIRECT 12
