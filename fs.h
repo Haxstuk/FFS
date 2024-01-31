@@ -38,6 +38,10 @@ struct superblock {
   uint bgroupmeta; // Number of blocks for metadata per block group = inodeblocksperbgroup + bmapblocksperbgroup
 };
 
+// there should be one superblock per disk device, but we run with
+// only one device
+struct superblock sb; 
+
 #define NDIRECT 12
 #define NINDIRECT (BSIZE / sizeof(uint))
 #define MAXFILE (NDIRECT + NINDIRECT)

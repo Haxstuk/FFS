@@ -82,6 +82,10 @@ argstr(int n, char **pp)
   return fetchstr(addr, pp);
 }
 
+extern int sys_bgstat(void);
+extern int sys_fbgstat(void);
+extern int sys_fsstat(void);
+
 extern int sys_chdir(void);
 extern int sys_close(void);
 extern int sys_dup(void);
@@ -126,6 +130,9 @@ static int (*syscalls[])(void) = {
 [SYS_link]    sys_link,
 [SYS_mkdir]   sys_mkdir,
 [SYS_close]   sys_close,
+[SYS_fsstat]  sys_fsstat,
+[SYS_bgstat]  sys_bgstat,
+[SYS_fbgstat]  sys_fbgstat
 };
 
 void

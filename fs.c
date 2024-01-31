@@ -23,9 +23,7 @@
 
 #define min(a, b) ((a) < (b) ? (a) : (b))
 static void itrunc(struct inode*);
-// there should be one superblock per disk device, but we run with
-// only one device
-struct superblock sb; 
+
 // Return the block number of the least utilized block group to be used whenever a new directory is created.
 int least_utilized_bgroup() {
   int b, bi, m;
