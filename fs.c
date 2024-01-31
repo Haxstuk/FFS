@@ -517,6 +517,12 @@ bmap(struct inode *ip, uint bn)
 
   uint bgroupnum = IBLOCKGROUP(ip->inum, sb);
 
+  // chunking. increment bgroupnum depending on what bn is. For large files
+  // with more than NDIRECT data blocks, the blocks will be chunked and spread
+  // across multiple block groups.
+  bgroupnum += (bn / NDIRECT); // chunk size is NDIRECT blocks
+  bgroupnum = bgroupnum % sb.nblockgroups; // loop back to front block group if necessary
+  
   if(bn < NDIRECT){
      if((addr = ip->addrs[bn]) == 0) {
       uint blocknum = balloci(ip->dev, bgroupnum);
