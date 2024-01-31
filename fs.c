@@ -26,6 +26,42 @@ static void itrunc(struct inode*);
 // there should be one superblock per disk device, but we run with
 // only one device
 struct superblock sb; 
+// Return the block number of the least utilized block group to be used whenever a new directory is created.
+int least_utilized_bgroup() {
+  int b, bi, m;
+  struct buf *bp;
+  int dev = 1; // ?
+
+  int leastUtilizedBgroup = 0;
+  int leastUtilizedNumBlocks = sb.bgroupsize;
+
+  int i = 0; // block group
+  for (; i < sb.nblockgroups; i++) {
+    int firstblock = BBLOCKGROUPSTART(i, sb);
+    b = firstblock + sb.bgroupmeta;
+
+    int numAllocatedBlocks = 0;
+
+    for (; b < firstblock + sb.bgroupsize; b += BPB) {
+      bp = bread(dev, BBLOCK(b, sb));
+      // look for free blocks here
+      for(bi = 0; bi < BPB && b + bi < sb.size; bi++){
+        m = 1 << (bi % 8);
+        if((bp->data[bi/8] & m) == 1) {  // Is block allocated?
+          numAllocatedBlocks++;
+        }
+      }
+      brelse(bp);
+    }
+
+    if (numAllocatedBlocks < leastUtilizedNumBlocks) {
+      leastUtilizedNumBlocks = numAllocatedBlocks;
+      leastUtilizedBgroup = i;
+    }
+  }
+  return leastUtilizedBgroup;
+}
+
 
 // Read the super block.
 void
@@ -269,7 +305,17 @@ ialloc(uint dev, short type)
   struct buf *bp;
   struct dinode *dip;
 
-  for(inum = 1; inum < sb.ninodes; inum++){
+    int until = sb.ninodes;
+  inum = 1;
+
+  if (type == T_DIR) {
+    int blockgroup = least_utilized_bgroup(); // get an inode from this block group
+    inum = FIRSTINODEOFBGROUP(blockgroup, sb);
+    until = inum + sb.inodesperbgroup;
+    if (inum == 0)
+      inum = 1; // no inode 0
+  }
+  for(; inum < until; inum++){
     bp = bread(dev, IBLOCK(inum, sb));
     dip = (struct dinode*)bp->data + inum%IPB;
     if(dip->type == 0){  // a free inode
